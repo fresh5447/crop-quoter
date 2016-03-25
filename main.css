@@ -1,0 +1,10 @@
+.nav-logo {
+  width: 200px;
+  height: 200px;
+  background-size: 360px;
+  background-position: center;
+}
+
+.nav-wrapper {
+  background-color: black !important;
+}

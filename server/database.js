@@ -17,8 +17,6 @@ Database.prototype.connect = function() {
   return db;
 }
 
-// Register models. This should only be done once.
-require('./models/Invoice').register();
 
 
 module.exports = new Database();
