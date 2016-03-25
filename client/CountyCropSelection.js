@@ -92,7 +92,8 @@ var CountyCropSelection = React.createClass({
       return <MenuItem value={i.key} key={i.key} primaryText={i.name}/>
     });
     var townShipItems = this.props.locations.map(function(i){
-      return <MenuItem value={i.twp} key={i.twp} primaryText={i.twp}/>
+      console.log(i._id);
+      return <MenuItem value={i.twp} key={'townships_' + i._id} primaryText={i.twp}/>
     });
     var rangeItems = this.props.locations.map(function(i){
       return <MenuItem value={i.rge} key={i.rge} primaryText={i.rge}/>

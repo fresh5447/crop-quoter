@@ -2,6 +2,7 @@ var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var XLSX = require('xlsx');
+
 var Location = require('./server/models/locations');
 var City = require('./server/models/cities');
 
@@ -12,6 +13,10 @@ database.connect();
 var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+var server = require('http').Server(app);
+
+var io = require('socket.io')(server);
 
 //XCEL PARSER STUFF
 
@@ -50,9 +55,9 @@ var desired_cell = worksheet[locationKey].v;
 //   if(worksheet['B'+ i].v.charAt(worksheet['B'+ i].v.length -1) != '0'){
 //       var glob = {};
 //       glob.locationKey = worksheet['B'+ i].v;
-//       glob.cty = worksheet['B'+ i].v.slice().slice(0,3);
-//       glob.twp = worksheet['B'+ i].v.slice().slice(3,7);
-//       glob.rge = worksheet['B'+ i].v.slice().slice(7);
+//       glob.cty = worksheet['B'+ i].v.slice().slice(0,3).trim();
+//       glob.twp = worksheet['B'+ i].v.slice().slice(3,7).trim();
+//       glob.rge = worksheet['B'+ i].v.slice().slice(7).trim();
 //       glob.wheat = [ { 'Basic': worksheet['H' + i].v },  { 'DXS5': worksheet['I'+ i].v },  { 'DDA': worksheet['J' + i].v },   { 'DXS1': worksheet['K' + i].v },   { 'DD20': worksheet['L' + i].v },  { 'XS20IP': worksheet['M' + i].v },  { '80MIN': worksheet['N' + i].v } ];
 //       glob.barley = [ { 'Basic': worksheet['P' + i].v },  { 'DXS5': worksheet['Q'+ i].v },  { 'DDA': worksheet['R' + i].v },   { 'DXS1': worksheet['S' + i].v },   { 'DD20': worksheet['T' + i].v },  { 'XS20IP': worksheet['U' + i].v },  { '80MIN': worksheet['V' + i].v } ];
 //       globs.push(glob)
@@ -63,14 +68,13 @@ var desired_cell = worksheet[locationKey].v;
 // globs.forEach(function(item){
 //   var location = new Location();
 //   location.locationKey = item.locationKey.trim();
-//   location.cty = item.cty;
-//   location.twp = item.twp;
-//   location.rge = item.rge;
+//   location.cty = item.cty.trim();
+//   location.twp = item.twp.trim();
+//   location.rge = item.rge.trim();
 //   location.wheat = item.wheat;
 //   location.barley = item.barley;
 //   location.save();
 // });
-
 
 
 
@@ -82,6 +86,18 @@ app.get('/api/locations', function(req, res){
       res.json(locations)
     }
   })
+});
+
+io.on('connection', function (socket) {
+  socket.on('locations', function () {
+    Location.find(function(err, locations){
+      if(err){
+        socket.on('locations: err', err)
+      } else {
+        socket.on('locations: res', locations);
+      }
+    })
+  });
 });
 
 app.get('/api/locationkey/:key', function(req, res){
@@ -140,14 +156,14 @@ app.use('/img', express.static('img'));
 
 
 
-app.get('*', function(req, res) {
+app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start the webserver
 var port = config.PORT;
 var hostname = config.HOSTNAME;
-app.listen(port, hostname, function(err) {
+server.listen(port, hostname, function(err) {
   if (err) {
     console.log(err);
     return;

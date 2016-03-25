@@ -6,8 +6,9 @@ var LocationSchema = new Schema({
   wheat: Array,
   barley: Array,
   cty: {type: String, unique: true},
-  twp: {type: String, unique: true},
+  twp: {type: String, index: { unique: true} , dropDups: true},
   rge: {type: String, unique: true},
 });
+
 
 module.exports = mongoose.model('Location', LocationSchema);

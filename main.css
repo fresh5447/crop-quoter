@@ -5,6 +5,10 @@
   background-position: center;
 }
 
+body {
+  background: blue !important;
+}
+
 .nav-wrapper {
   background-color: black !important;
 }
